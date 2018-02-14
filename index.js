@@ -8,26 +8,35 @@ request({
     if (e || !b) { return; }
     var $ = cheerio.load(b);
     var result = [];
-    var eachTitles = $(".zkt1L tr");
+    var eachTitles = $(".zkt1L .zkt2R a");
+    var eachTitlesEven = $(".zkt1L .zkt2R_rev a");
     var close = $(".zkt1L .zkt2R .zkt2L").next();
-    var tenMA = $(".zkt1L .zkt2R .zkt2r");
+    var closeEven = $(".zkt1L .zkt2R_rev .zkt2L_rev").next();
     var sixtyMA = $(".zkt1L .zkt2R .zkt2r").next();
 
-    for (var i = 0; i < eachTitles.length; i++) {
-        var regResult = $(eachTitles[i]).find('td').eq(0).find('a').text().slice(0, 4);
-        if (regResult != "" && regResult != "\n\n") {
-            var countRisk = $(close[i]).text() / $(tenMA[i]).text();
-            if (countRisk > 1.05 && countRisk < 1.15) {
-                countRisk = (countRisk - 1) * 100;
-                countRisk = countRisk.toFixed(2);
-
-                // console.log(countRisk + "%")
-                result.push(regResult + " Risk:" + countRisk + "%");
-            }
-
-        }
-        // console.log(regResult);
-    }
+    fuck(eachTitles, close, ".zkt2R", ".zkt2r");
+    fuck(eachTitlesEven, closeEven, ".zkt2R_rev", ".zkt2r_rev");
 
     fs.writeFileSync("result.json", JSON.stringify(result));
+
+    function fuck(titles, closeNum, topRoot, tenMATd) {
+        for (var i = 0; i < titles.length; i++) {
+
+            var regResult = $(titles[i]).text().slice(0, 4);
+            var tenMA = $(titles[i]).closest(topRoot).find(tenMATd).eq(0);
+
+            if (regResult != "" && regResult != "\n\n") {
+                var countRisk = $(closeNum[i]).text() / $(tenMA).text();
+
+                if (countRisk > 1.05 && countRisk < 1.15) {
+                    countRisk = (countRisk - 1) * 100;
+                    countRisk = countRisk.toFixed(2);
+                    result.push(regResult + " Risk:" + countRisk + "%");
+                }
+
+            }
+        }
+
+
+    }
 });
