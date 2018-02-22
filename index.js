@@ -2,7 +2,11 @@ var request = require("request");
 var fs = require("fs");
 var cheerio = require("cheerio");
 request({
-    url: "http://justdata.yuanta.com.tw/z/zk/zkf/zkResult.asp?A=x@30,a@10;x@50,a@100;x@40,a@10;x@1410,a@10,b@60&B=&C=ID,SO@1&D=1&E=0&G=1&site=",
+    // 1.	近一交易日股價大於10元
+    // 2.	近一交易日股價小於100元
+    // 3.	近一交易日股價大於10日MA
+    // 4.	10日MA大於60日MA
+    url: "http://justdata.yuanta.com.tw/z/zk/zkf/zkResult.asp?D=1&A=x@30,a@10;x@50,a@100;x@40,a@10;x@1410,a@10,b@60&site=",
     method: "GET"
 }, function (e, r, b) {
     if (e || !b) { return; }
@@ -24,14 +28,14 @@ request({
 
             var regResult = $(titles[i]).text().slice(0, 4);
             var tenMA = $(titles[i]).closest(topRoot).find(tenMATd).eq(0);
-
+            // console.log(regResult + " 10MA:" + $(tenMA).text())
             if (regResult != "" && regResult != "\n\n") {
                 var countRisk = $(closeNum[i]).text() / $(tenMA).text();
-
+                // console.log(regResult + " K:" + $(closeNum[i]).text() + ", 10MA:" + $(tenMA).text())
                 if (countRisk > 1.05 && countRisk < 1.15) {
                     countRisk = (countRisk - 1) * 100;
                     countRisk = countRisk.toFixed(2);
-                    result.push(regResult + " Risk:" + countRisk + "%");
+                    result.push(regResult + " K:" + $(closeNum[i]).text() + ", 10MA:" + $(tenMA).text() + ", Risk:" + countRisk + "%");
                 }
 
             }
