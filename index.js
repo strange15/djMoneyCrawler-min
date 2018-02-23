@@ -17,10 +17,11 @@ request({
     var close = $(".zkt1L .zkt2R .zkt2L").next();
     var closeEven = $(".zkt1L .zkt2R_rev .zkt2L_rev").next();
     var sixtyMA = $(".zkt1L .zkt2R .zkt2r").next();
+    var counter = 0;
 
     fuck(eachTitles, close, ".zkt2R", ".zkt2r");
     fuck(eachTitlesEven, closeEven, ".zkt2R_rev", ".zkt2r_rev");
-
+    result.push("total: " + counter);
     fs.writeFileSync("result.json", JSON.stringify(result));
 
     function fuck(titles, closeNum, topRoot, tenMATd) {
@@ -35,6 +36,7 @@ request({
                 if (countRisk > 1.05 && countRisk < 1.15) {
                     countRisk = (countRisk - 1) * 100;
                     countRisk = countRisk.toFixed(2);
+                    counter++;
                     result.push(regResult + " K:" + $(closeNum[i]).text() + ", 10MA:" + $(tenMA).text() + ", Risk:" + countRisk + "%");
                 }
 
