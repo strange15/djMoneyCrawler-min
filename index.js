@@ -6,7 +6,10 @@ request({
     // 2.	近一交易日股價小於100元
     // 3.	近一交易日股價大於10日MA
     // 4.	10日MA大於60日MA
-    url: "http://justdata.yuanta.com.tw/z/zk/zkf/zkResult.asp?D=1&A=x@30,a@10;x@50,a@100;x@40,a@10;x@1410,a@10,b@60&site=",
+    // http://justdata.yuanta.com.tw/z/zk/zkf/zkResult.asp?D=1&A=x@30,a@10;x@50,a@100;x@40,a@10;x@1410,a@10,b@60&site=
+    
+    // 增加 5. 近一交易日股價創180日來新高 的條件
+    url: "http://justdata.yuanta.com.tw/z/zk/zkf/zkResult.asp?D=1&A=x@30,a@10;x@50,a@100;x@40,a@10;x@10,a@180;x@1410,a@10,b@60&site=",
     method: "GET"
 }, function (e, r, b) {
     if (e || !b) { return; }
@@ -18,11 +21,14 @@ request({
     var closeEven = $(".zkt1L .zkt2R_rev .zkt2L_rev").next();
     var sixtyMA = $(".zkt1L .zkt2R .zkt2r").next();
     var counter = 0;
+    var titleDate = formatDate(new Date());
 
+
+    
     fuck(eachTitles, close, ".zkt2R", ".zkt2r");
     fuck(eachTitlesEven, closeEven, ".zkt2R_rev", ".zkt2r_rev");
     result.push("total: " + counter);
-    fs.writeFileSync("result.json", JSON.stringify(result));
+    fs.writeFileSync(titleDate + "-result.json", JSON.stringify(result));
 
     function fuck(titles, closeNum, topRoot, tenMATd) {
         for (var i = 0; i < titles.length; i++) {
@@ -45,4 +51,21 @@ request({
 
 
     }
+
+    function formatDate(date) {
+        var monthNames = [
+            "January", "February", "March",
+            "April", "May", "June", "July",
+            "August", "September", "October",
+            "November", "December"
+        ];
+
+        var day = date.getDate();
+        var monthIndex = date.getMonth();
+        var year = date.getFullYear();
+
+        // return day + ' ' + monthNames[monthIndex] + ' ' + year;
+        return year + monthNames[monthIndex] + day;
+    }
+
 });
